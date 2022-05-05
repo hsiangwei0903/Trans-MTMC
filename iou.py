@@ -1,6 +1,3 @@
-import glob 
-from PIL import Image
-
 def iou(bboxA,bboxB):
     left = max(bboxA[0],bboxB[0])
     right = min(bboxA[2],bboxB[2])
