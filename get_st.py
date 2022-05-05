@@ -1,9 +1,8 @@
 '''
-Get the moving direction, entry time and exit time of every car (the spatio-temporal information)
+Get the moving direction, entry time and exit time of every car (spatio-temporal information)
 
 hsiangwei
 '''
-import cv2
 from numpy import genfromtxt
 import numpy as np
 import glob 
@@ -17,13 +16,15 @@ from viz import zones, seqs, path_in
 def update_zone(dic,id,zone_id):
     if id not in dic:
         dic[id] = [zone_id]
-    else:
-        if zone_id not in dic[id]:
-            dic[id].append(zone_id)
-        else:
-            if dic[id][-1] != zone_id:
-                dic[id].remove(zone_id)
-                dic[id].append(zone_id)
+    elif zone_id not in dic[id]:
+        dic[id].append(zone_id)
+    # else:
+    #     if zone_id not in dic[id]:
+    #         dic[id].append(zone_id)
+    #     else:
+    #         if dic[id][-1] != zone_id:
+    #             dic[id].remove(zone_id)
+    #             dic[id].append(zone_id)
     return dic
 
 def update_time(dic,id,frame):
@@ -37,12 +38,11 @@ def update_time(dic,id,frame):
     return dic
 
 def filter_dic(zone_dic,time_dic):
-    for car in list(zone_dic.keys()):
-        if car not in time_dic:
+    for car in list(time_dic.keys()):
+        if car not in zone_dic:
             time_dic.pop(car) # filter out those car not passing any zone
-        if len(zone_dic[car])==1:
-            zone_dic.pop(car)
-            time_dic.pop(car)
+        elif len(zone_dic[car])==1:
+            zone_dic[car].append(zone_dic[car][0])
         elif len(zone_dic[car])==3:
             zone_dic[car] = [zone_dic[car][0],zone_dic[car][-1]]
         elif len(zone_dic[car])==4:
@@ -73,11 +73,15 @@ for s_id,seq in enumerate(seqs):
 
         if n == len(labels):
             break
-                
+
     zone_dic, time_dic = filter_dic(zone_dic,time_dic)
+
+    assert len(zone_dic)==len(time_dic)
 
     zone_dics.append(zone_dic)
     time_dics.append(time_dic)
+
+
 
 np.save('/home/wei/Desktop/test/npy/zone_dics.npy',zone_dics)
 np.save('/home/wei/Desktop/test/npy/time_dics.npy',time_dics)
